@@ -1,0 +1,98 @@
+# 基础设施 docker-compose
+# 包含：PostgreSQL + Redis + Neo4j + MinIO
+
+services:
+  # PostgreSQL - 主数据库
+  postgres:
+    image: postgres:16-alpine
+    container_name: exam-postgres
+    environment:
+      POSTGRES_DB: exampred
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # S5 修复：必须从环境变量读取，禁止硬编码
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis - 缓存和任务队列
+  redis:
+    image: redis:7-alpine
+    container_name: exam-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Neo4j - 知识图谱数据库
+  neo4j:
+    image: neo4j:5.18-community
+    container_name: exam-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-Exampred123}
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_auth__enabled: "true"
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # MinIO - S3 兼容对象存储
+  minio:
+    image: minio/minio:latest
+    container_name: exam-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    entrypoint: |
+      bash -c 'if echo "${MINIO_SECRET_KEY}" | grep -qE "^(minioadmin|admin|password|password123|root)$"; then echo "FATAL: MINIO_SECRET_KEY must not be a weak default value. Set a strong password in .env"; exit 1; fi; /usr/bin/minio server /data --console-address ":9001"'
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
+
+  # Redis Commander - Redis 可视化管理（可选）
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: exam-redis-commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  neo4j_data:
+  minio_data:
