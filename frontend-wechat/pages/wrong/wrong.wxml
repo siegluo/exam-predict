@@ -1,0 +1,111 @@
+<!-- pages/wrong/wrong.wxml - 错题本页 -->
+<view class="page">
+  <!-- 统计卡片 -->
+  <view class="stats-card card">
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{stats.total}}</text>
+        <text class="stat-label">错题总数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value text-warning">{{stats.learning}}</text>
+        <text class="stat-label">学习中</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value text-success">{{stats.mastered}}</text>
+        <text class="stat-label">已掌握</text>
+      </view>
+    </view>
+    <button class="btn-primary practice-btn" bindtap="onPracticeAll" wx:if="{{stats.total > 0}}">
+      全部重新练习
+    </button>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{isLoading}}" class="loading-container">
+    <van-loading type="spinner" size="48rpx">加载中...</van-loading>
+  </view>
+
+  <!-- 章节筛选 -->
+  <view wx:else class="chapter-filter">
+    <scroll-view scroll-x class="filter-scroll">
+      <view class="filter-tabs">
+        <view 
+          class="filter-tab {{selectedChapter === 'all' ? 'active' : ''}}"
+          bindtap="onSelectChapter"
+          data-chapter="all"
+        >全部</view>
+        <view 
+          wx:for="{{chapters}}"
+          wx:key="*this"
+          class="filter-tab {{selectedChapter === item ? 'active' : ''}}"
+          bindtap="onSelectChapter"
+          data-chapter="{{item}}"
+        >{{item}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 错题列表 -->
+  <view class="wrong-list" wx:if="{{!isLoading}}">
+    <block wx:for="{{chapters}}" wx:key="*this">
+      <view wx:if="{{selectedChapter === 'all' || selectedChapter === item}}" class="chapter-section">
+        <view class="chapter-header">
+          <text class="chapter-name">{{item}}</text>
+          <text class="chapter-count">{{groupedQuestions[item].length}}题</text>
+        </view>
+        
+        <view class="question-list">
+          <block wx:for="{{groupedQuestions[item]}}" wx:key="id" wx:for-item="question">
+            <view class="question-card card">
+              <view class="question-meta">
+                <van-tag type="{{question.type === 'single' ? 'primary' : 'warning'}}">
+                  {{question.type === 'single' ? '单选' : '多选'}}
+                </van-tag>
+                <text class="wrong-count">错误 {{question.wrongCount}} 次</text>
+              </view>
+              
+              <view class="question-content">
+                <text>{{question.content}}</text>
+              </view>
+              
+              <view class="mastery-section">
+                <view class="mastery-info">
+                  <text>掌握度</text>
+                  <text class="mastery-value {{question.mastery < 50 ? 'text-danger' : question.mastery < 80 ? 'text-warning' : 'text-success'}}">
+                    {{question.mastery}}%
+                  </text>
+                </view>
+                <view class="progress-bar">
+                  <view 
+                    class="progress-bar-inner {{question.mastery < 50 ? 'danger' : question.mastery < 80 ? 'warning' : 'success'}}"
+                    style="width: {{question.mastery}}%"
+                  ></view>
+                </view>
+              </view>
+              
+              <view class="question-actions">
+                <view class="action-btn" bindtap="onViewAnalysis" data-id="{{question.id}}">
+                  <text>查看解析</text>
+                </view>
+                <view class="action-btn primary" bindtap="onStartPractice" data-id="{{question.id}}">
+                  <text>重新练习</text>
+                </view>
+                <view class="action-btn danger" bindtap="onRemoveWrong" data-id="{{question.id}}">
+                  <text>移除</text>
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <view wx:if="{{wrongQuestions.length === 0}}" class="empty-state">
+      <text class="empty-icon">🎉</text>
+      <text class="empty-title">太棒了！</text>
+      <text class="empty-desc">暂无错题，保持好成绩！</text>
+    </view>
+  </view>
+</view>
