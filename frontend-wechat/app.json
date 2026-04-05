@@ -1,0 +1,81 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/exam/exam",
+    "pages/wrong/wrong",
+    "pages/knowledge/knowledge",
+    "pages/predict/predict",
+    "pages/profile/profile",
+    "pages/notify/notify"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#4A90E2",
+    "navigationBarTitleText": "考试预测",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": true,
+    "onReachBottomDistance": 50
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4A90E2",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/exam/exam",
+        "text": "刷题",
+        "iconPath": "assets/icons/exam.png",
+        "selectedIconPath": "assets/icons/exam-active.png"
+      },
+      {
+        "pagePath": "pages/wrong/wrong",
+        "text": "错题本",
+        "iconPath": "assets/icons/wrong.png",
+        "selectedIconPath": "assets/icons/wrong-active.png"
+      },
+      {
+        "pagePath": "pages/knowledge/knowledge",
+        "text": "知识图谱",
+        "iconPath": "assets/icons/knowledge.png",
+        "selectedIconPath": "assets/icons/knowledge-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/profile.png",
+        "selectedIconPath": "assets/icons/profile-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "获取位置信息以提供更好的学习建议"
+    }
+  },
+  "requiredBackgroundModes": ["audio"],
+  "usingComponents": {
+    "van-button": "../../assets/vant/button/index",
+    "van-card": "../../assets/vant/card/index",
+    "van-cell": "../../assets/vant/cell/index",
+    "van-cell-group": "../../assets/vant/cell-group/index",
+    "van-tag": "../../assets/vant/tag/index",
+    "van-progress": "../../assets/vant/progress/index",
+    "van-notice-bar": "../../assets/vant/notice-bar/index",
+    "van-dialog": "../../assets/vant/dialog/index",
+    "van-toast": "../../assets/vant/toast/index",
+    "van-loading": "../../assets/vant/loading/index",
+    "van-switch": "../../assets/vant/switch/index",
+    "van-field": "../../assets/vant/field/index",
+    "van-picker": "../../assets/vant/picker/index"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
