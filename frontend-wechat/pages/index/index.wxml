@@ -1,0 +1,176 @@
+<!-- pages/index/index.wxml - 首页 -->
+<view class="page">
+  <!-- 头部信息 -->
+  <view class="header">
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <view class="user-info" bindtap="onUserInfoTap">
+        <image class="avatar" src="{{userInfo.avatar || '/assets/icons/avatar-default.png'}}" mode="aspectFill"></image>
+        <view class="user-detail">
+          <text class="nickname">{{userInfo.nickname || '点击登录'}}</text>
+          <text class="exam-name">{{examName}}</text>
+        </view>
+      </view>
+      
+      <!-- 倒计时卡片 -->
+      <view class="countdown-card" bindtap="onSetExamDate">
+        <view class="countdown-main">
+          <text class="countdown-label">距离考试还有</text>
+          <view class="countdown-days">
+            <text class="days-number">{{countdownDays}}</text>
+            <text class="days-unit">天</text>
+          </view>
+        </view>
+        <view class="countdown-date">
+          <text>{{examDate}}</text>
+          <text class="icon">📅</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日学习统计 -->
+  <view class="stats-card card">
+    <view class="card-title">
+      <text>📊 今日学习</text>
+      <text class="text-primary" bindtap="onStartExam">开始学习 →</text>
+    </view>
+    <view class="stats-grid">
+      <view class="stats-item">
+        <view class="stats-card-inner">
+          <text class="stats-value">{{studyStats.todayQuestions}}</text>
+          <text class="stats-label">做题数</text>
+        </view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-card-inner">
+          <text class="stats-value text-success">{{studyStats.todayCorrectRate}}%</text>
+          <text class="stats-label">正确率</text>
+        </view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-card-inner">
+          <text class="stats-value">{{studyStats.totalQuestions}}</text>
+          <text class="stats-label">累计做题</text>
+        </view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-card-inner">
+          <text class="stats-value">{{studyStats.correctRate}}%</text>
+          <text class="stats-label">总正确率</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日任务 -->
+  <view class="tasks-card card">
+    <view class="card-title">
+      <text>📋 今日任务</text>
+      <text class="text-gray" bindtap="onViewAllNotifications">查看全部</text>
+    </view>
+    <view class="task-list">
+      <block wx:for="{{todayTasks}}" wx:key="id">
+        <view class="task-item" bindtap="onTaskTap" data-id="{{item.id}}">
+          <view class="task-progress-ring">
+            <view class="progress-ring-inner" style="width: {{item.progress}}%"></view>
+            <text class="progress-text">{{item.done}}/{{item.total}}</text>
+          </view>
+          <view class="task-content">
+            <text class="task-title">{{item.title}}</text>
+            <view class="progress-bar">
+              <view class="progress-bar-inner" style="width: {{item.progress}}%"></view>
+            </view>
+          </view>
+          <text class="task-arrow">→</text>
+        </view>
+      </block>
+      <view wx:if="{{todayTasks.length === 0}}" class="empty-state">
+        <text class="text-gray">暂无任务</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 薄弱点提醒 -->
+  <view class="weak-points-card card">
+    <view class="card-title">
+      <text>⚠️ 薄弱点提醒</text>
+      <text class="text-gray">需要加强</text>
+    </view>
+    <view class="weak-points-list">
+      <block wx:for="{{weakPoints}}" wx:key="id">
+        <view class="weak-point-item" bindtap="onWeakPointTap" data-id="{{item.id}}">
+          <view class="weak-point-left">
+            <text class="weak-point-name">{{item.name}}</text>
+            <view class="progress-bar small">
+              <view class="progress-bar-inner danger" style="width: {{item.mastery}}%"></view>
+            </view>
+          </view>
+          <view class="weak-point-right">
+            <text class="mastery-value text-danger">{{item.mastery}}%</text>
+            <text class="mastery-label">掌握度</text>
+          </view>
+        </view>
+      </block>
+      <view wx:if="{{weakPoints.length === 0}}" class="empty-state">
+        <text class="text-gray">暂无薄弱点</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速入口 -->
+  <view class="quick-entry-card card">
+    <view class="card-title">
+      <text>🚀 快速入口</text>
+    </view>
+    <view class="quick-entry-grid">
+      <block wx:for="{{quickEntries}}" wx:key="id">
+        <view class="quick-entry-item" bindtap="onQuickEntryTap" data-path="{{item.path}}">
+          <view class="quick-entry-icon" style="background-color: {{item.color}}">
+            <text>{{item.icon}}</text>
+          </view>
+          <text class="quick-entry-name">{{item.name}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 通知列表 -->
+  <view class="notifications-card card" wx:if="{{notifications.length > 0}}">
+    <view class="card-title">
+      <text>🔔 最新通知</text>
+      <text class="text-gray" bindtap="onViewAllNotifications">全部</text>
+    </view>
+    <view class="notification-list">
+      <block wx:for="{{notifications}}" wx:key="id">
+        <view class="notification-item">
+          <view class="notification-icon">
+            <text>{{item.type === 'reminder' ? '⏰' : '🎯'}}</text>
+          </view>
+          <view class="notification-content">
+            <text class="notification-text">{{item.content}}</text>
+            <text class="notification-time">{{item.time}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 底部间距 -->
+  <view class="bottom-space"></view>
+</view>
+
+<!-- 登录弹窗 -->
+<van-dialog
+  show="{{ showLoginModal }}"
+  title="登录"
+  show-cancel-button
+  confirm-button-open-type="getPhoneNumber"
+  bind:getphonenumber="onGetPhoneNumber"
+  bind:close="onCloseLoginModal"
+>
+  <view class="login-modal-content">
+    <text>登录后即可享受完整功能</text>
+    <button class="btn-secondary" bindtap="onSimulateLogin">游客模式</button>
+  </view>
+</van-dialog>
