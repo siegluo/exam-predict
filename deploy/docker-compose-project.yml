@@ -1,0 +1,110 @@
+# 项目 docker-compose
+# 包含：Java API + Python API + Nginx 网关
+# 依赖 docker-compose-infra.yml 中的基础设施服务
+# 网络：deploy_default（与 infra 共享）
+#
+# ⚠️ 修复记录（Round-1 Phase-2）：
+#   1. ANTHROPIC_API_KEY → MINIMAX_API_KEY（与 python-backend/config.py 对齐）
+#   2. exam-postgres → postgres（服务名与 docker-compose-all.yml 保持一致）
+#   3. exam-redis → redis
+#   4. exam-neo4j → neo4j
+
+services:
+  # Java Spring Boot API
+  java-api:
+    build:
+      context: ../java-backend
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_MIRROR=https://maven.aliyun.com/repository/public
+    image: exam-java-api:local
+    container_name: exam-java-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/exampred
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-postgres}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+
+  # Python FastAPI API
+  python-api:
+    build:
+      context: ../python-backend
+      dockerfile: Dockerfile
+      args:
+        - PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
+    image: exam-python-api:local
+    container_name: exam-python-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-password123}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-postgres}@postgres:5432/exampred
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+
+  # Next.js Frontend (containerized)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: exam-frontend:local
+    container_name: exam-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - PYTHON_API_URL=http://python-api:8000
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+
+  # Nginx API Gateway
+  nginx:
+    image: nginx:alpine
+    container_name: exam-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - java-api
+      - python-api
+      - frontend
+    restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    name: deploy_default
+    external: true
