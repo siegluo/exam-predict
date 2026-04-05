@@ -1,0 +1,139 @@
+<!-- pages/knowledge/knowledge.wxml - 知识图谱页 -->
+<view class="page">
+  <!-- 章节列表模式 -->
+  <block wx:if="{{mode === 'chapters'}}">
+    <!-- 搜索框 -->
+    <view class="search-bar">
+      <input 
+        class="search-input" 
+        placeholder="搜索章节..." 
+        bindinput="onSearch"
+        value="{{searchKeyword}}"
+      />
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{isLoading}}" class="loading-container">
+      <van-loading type="spinner" size="48rpx">加载中...</van-loading>
+    </view>
+
+    <!-- 章节列表 -->
+    <view class="chapter-list" wx:else>
+      <block wx:for="{{chapters}}" wx:key="id">
+        <view class="chapter-card card" bindtap="onSelectChapter" data-id="{{item.id}}">
+          <view class="chapter-info">
+            <text class="chapter-name">{{item.name}}</text>
+            <view class="chapter-stats">
+              <text class="stat">{{item.totalPoints}} 个知识点</text>
+            </view>
+          </view>
+          
+          <view class="chapter-right">
+            <view class="probability-tag {{item.examProbability >= 80 ? 'high' : item.examProbability >= 60 ? 'medium' : 'low'}}">
+              <text>{{item.examProbability}}%</text>
+              <text class="tag-label">预测概率</text>
+            </view>
+            <view class="mastery-section">
+              <text class="mastery-label">掌握度</text>
+              <view class="progress-bar">
+                <view class="progress-bar-inner" style="width: {{item.masteredRate}}%"></view>
+              </view>
+              <text class="mastery-value">{{item.masteredRate}}%</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <!-- 知识点列表模式 -->
+  <block wx:if="{{mode === 'points'}}">
+    <view class="points-header">
+      <view class="back-btn" bindtap="onBackToChapters">
+        <text>← 返回</text>
+      </view>
+      <text class="chapter-title">{{selectedChapter.name}}</text>
+    </view>
+
+    <view class="points-list">
+      <block wx:for="{{knowledgePoints}}" wx:key="id">
+        <view class="point-card card" bindtap="onSelectPoint" data-id="{{item.id}}">
+          <view class="point-info">
+            <text class="point-name">{{item.name}}</text>
+            <text class="point-questions">{{item.questionsCount}} 道相关题</text>
+          </view>
+          
+          <view class="point-right">
+            <view class="probability-badge {{item.examProbability >= 80 ? 'high' : item.examProbability >= 60 ? 'medium' : 'low'}}">
+              {{item.examProbability}}%
+            </view>
+            <view class="mastery-badge {{item.mastery >= 80 ? 'good' : item.mastery >= 50 ? 'medium' : 'poor'}}">
+              {{item.mastery}}%
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <!-- 知识点详情模式 -->
+  <block wx:if="{{mode === 'detail' && pointDetail}}">
+    <view class="detail-header">
+      <view class="back-btn" bindtap="onBackToPoints">
+        <text>← 返回</text>
+      </view>
+    </view>
+
+    <view class="detail-content">
+      <view class="detail-title-section card">
+        <text class="detail-title">{{pointDetail.name}}</text>
+        <text class="detail-chapter">{{pointDetail.chapter}}</text>
+        
+        <view class="detail-tags">
+          <view class="tag-item">
+            <text class="tag-label">预测概率</text>
+            <text class="tag-value text-danger">{{pointDetail.examProbability}}%</text>
+          </view>
+          <view class="tag-item">
+            <text class="tag-label">掌握度</text>
+            <text class="tag-value {{pointDetail.mastery >= 80 ? 'text-success' : pointDetail.mastery >= 50 ? 'text-warning' : 'text-danger'}}">
+              {{pointDetail.mastery}}%
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <view class="detail-summary card">
+        <view class="section-title">概述</view>
+        <text class="summary-text">{{pointDetail.summary}}</text>
+      </view>
+
+      <view class="detail-key-concepts card">
+        <view class="section-title">核心概念</view>
+        <view class="concepts-list">
+          <block wx:for="{{pointDetail.keyConcepts}}" wx:key="*this">
+            <view class="concept-item">
+              <text class="concept-icon">📚</text>
+              <text class="concept-text">{{item}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="detail-related card" wx:if="{{pointDetail.relatedPoints}}">
+        <view class="section-title">相关知识点</view>
+        <view class="related-tags">
+          <block wx:for="{{pointDetail.relatedPoints}}" wx:key="*this">
+            <view class="related-tag" bindtap="onSelectPoint" data-name="{{item}}">
+              {{item}}
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <button class="btn-primary study-btn" bindtap="onStartLearning">
+        开始学习
+      </button>
+    </view>
+  </block>
+</view>
