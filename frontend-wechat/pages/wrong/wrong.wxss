@@ -1,0 +1,237 @@
+/* pages/wrong/wrong.wxss - 错题本页样式 */
+
+.page {
+  min-height: 100vh;
+  background: #F5F5F5;
+  padding: 30rpx;
+}
+
+/* 统计卡片 */
+.stats-card {
+  margin-bottom: 30rpx;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30rpx;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #4A90E2;
+  display: block;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.practice-btn {
+  width: 100%;
+}
+
+/* 章节筛选 */
+.chapter-filter {
+  margin-bottom: 30rpx;
+}
+
+.filter-scroll {
+  white-space: nowrap;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 20rpx;
+  padding: 10rpx 0;
+}
+
+.filter-tab {
+  display: inline-block;
+  padding: 16rpx 32rpx;
+  background: #FFFFFF;
+  border-radius: 44rpx;
+  font-size: 26rpx;
+  color: #666;
+  white-space: nowrap;
+}
+
+.filter-tab.active {
+  background: #4A90E2;
+  color: #FFFFFF;
+}
+
+/* 章节区域 */
+.chapter-section {
+  margin-bottom: 40rpx;
+}
+
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.chapter-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.chapter-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 题目卡片 */
+.question-card {
+  margin-bottom: 20rpx;
+}
+
+.question-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.wrong-count {
+  font-size: 24rpx;
+  color: #ED4C4C;
+}
+
+.question-content {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 掌握度 */
+.mastery-section {
+  margin-bottom: 20rpx;
+}
+
+.mastery-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.mastery-value {
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 12rpx;
+  background: #E8E8E8;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-bar-inner.danger {
+  background: linear-gradient(90deg, #ED4C4C, #FF6B6B);
+}
+
+.progress-bar-inner.warning {
+  background: linear-gradient(90deg, #FF9900, #FFB84D);
+}
+
+.progress-bar-inner.success {
+  background: linear-gradient(90deg, #43AF53, #67D17D);
+}
+
+/* 操作按钮 */
+.question-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 16rpx 0;
+  text-align: center;
+  background: #F5F5F5;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.action-btn.primary {
+  background: #4A90E2;
+  color: #FFFFFF;
+}
+
+.action-btn.danger {
+  background: rgba(237, 76, 76, 0.1);
+  color: #ED4C4C;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 60rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #999;
+  display: block;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400rpx;
+}
+
+/* 文字颜色 */
+.text-warning {
+  color: #FF9900;
+}
+
+.text-success {
+  color: #43AF53;
+}
+
+.text-danger {
+  color: #ED4C4C;
+}
