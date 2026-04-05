@@ -1,0 +1,121 @@
+<!-- pages/profile/profile.wxml - 个人中心页 -->
+<view class="page">
+  <!-- 用户信息头部 -->
+  <view class="profile-header">
+    <view class="header-bg"></view>
+    <view class="user-info-section">
+      <view class="avatar-wrapper" bindtap="onEditProfile">
+        <image 
+          class="avatar" 
+          src="{{userInfo.avatar || '/assets/icons/avatar-default.png'}}" 
+          mode="aspectFill"
+        ></image>
+        <view class="avatar-edit">
+          <text>✏️</text>
+        </view>
+      </view>
+      
+      <view class="user-detail">
+        <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
+        <text class="user-id" wx:if="{{userInfo.id}}">ID: {{userInfo.id}}</text>
+      </view>
+      
+      <!-- VIP状态 -->
+      <view class="vip-status {{memberStatus.isVip ? 'active' : ''}}" bindtap="onGoToVip">
+        <text wx:if="{{memberStatus.isVip}}">VIP会员</text>
+        <text wx:else>开通VIP</text>
+      </view>
+    </view>
+    
+    <!-- 会员到期信息 -->
+    <view class="vip-expire" wx:if="{{memberStatus.isVip}}">
+      <text>会员有效期至：{{memberStatus.expireDate}}</text>
+      <text class="remain-days">剩余 {{memberStatus.remainDays}} 天</text>
+    </view>
+  </view>
+
+  <!-- 学习统计 -->
+  <view class="stats-section card">
+    <view class="section-title">📊 学习统计</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{studyStats.totalDays}}</text>
+        <text class="stat-label">学习天数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{studyStats.totalQuestions}}</text>
+        <text class="stat-label">累计做题</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{studyStats.currentStreak}}</text>
+        <text class="stat-label">连续学习</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{formatTime(studyStats.totalTime)}}</text>
+        <text class="stat-label">累计时长</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 学习趋势 -->
+  <view class="trend-section card">
+    <view class="section-title">📈 学习趋势（近7天）</view>
+    <view class="trend-chart">
+      <block wx:for="{{learningTrend}}" wx:key="date">
+        <view class="trend-bar-item">
+          <view class="trend-bar-wrapper">
+            <view 
+              class="trend-bar" 
+              style="height: {{item.questions * 2}}rpx"
+            ></view>
+          </view>
+          <text class="trend-label">{{item.date}}</text>
+          <text class="trend-value">{{item.questions}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 快速操作 -->
+  <view class="actions-section">
+    <view class="section-title">⚡ 快捷操作</view>
+    <view class="actions-grid">
+      <block wx:for="{{quickActions}}" wx:key="id">
+        <view class="action-item" bindtap="onQuickAction" data-path="{{item.path}}">
+          <view class="action-icon">{{item.icon}}</view>
+          <text class="action-name">{{item.name}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 开通VIP推广 -->
+  <view class="vip-promo card" wx:if="{{!memberStatus.isVip}}" bindtap="onOpenVip">
+    <view class="promo-content">
+      <text class="promo-title">🎁 开通VIP会员</text>
+      <text class="promo-desc">解锁全部押题卷、高级功能、专属客服</text>
+    </view>
+    <view class="promo-btn">
+      <text>立即开通</text>
+    </view>
+  </view>
+
+  <!-- 其他设置 -->
+  <view class="settings-section card">
+    <view class="settings-item" bindtap="onEditProfile">
+      <text class="settings-icon">👤</text>
+      <text class="settings-name">编辑资料</text>
+      <text class="settings-arrow">→</text>
+    </view>
+    <view class="settings-item" bindtap="onLogout">
+      <text class="settings-icon">🚪</text>
+      <text class="settings-name text-danger">退出登录</text>
+      <text class="settings-arrow">→</text>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text>考试预测 v1.0.0</text>
+  </view>
+</view>
