@@ -1,0 +1,187 @@
+<!-- pages/notify/notify.wxml - 通知设置页 -->
+<view class="page">
+  <!-- 提醒开关 -->
+  <view class="section card">
+    <view class="section-title">🔔 提醒开关</view>
+    
+    <view class="setting-list">
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">每日学习提醒</text>
+          <text class="setting-desc">每天固定时间提醒学习</text>
+        </view>
+        <van-switch 
+          checked="{{settings.dailyReminder}}" 
+          bind:change="onSwitchChange"
+          data-key="dailyReminder"
+          active-color="#4A90E2"
+        />
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">错题复习提醒</text>
+          <text class="setting-desc">错题达到一定数量时提醒</text>
+        </view>
+        <van-switch 
+          checked="{{settings.wrongQuestionReminder}}" 
+          bind:change="onSwitchChange"
+          data-key="wrongQuestionReminder"
+          active-color="#4A90E2"
+        />
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">押题卷更新提醒</text>
+          <text class="setting-desc">押题卷生成完成时通知</text>
+        </view>
+        <van-switch 
+          checked="{{settings.predictPaperReminder}}" 
+          bind:change="onSwitchChange"
+          data-key="predictPaperReminder"
+          active-color="#4A90E2"
+        />
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">考试倒计时提醒</text>
+          <text class="setting-desc">考试前重要时间节点提醒</text>
+        </view>
+        <van-switch 
+          checked="{{settings.examReminder}}" 
+          bind:change="onSwitchChange"
+          data-key="examReminder"
+          active-color="#4A90E2"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 推送时间 -->
+  <view class="section card">
+    <view class="section-title">⏰ 推送时间</view>
+    
+    <view class="setting-item" bindtap="onShowTimePicker" data-target="pushTime">
+      <view class="setting-info">
+        <text class="setting-name">每日提醒时间</text>
+        <text class="setting-desc">将在此时间发送提醒</text>
+      </view>
+      <view class="setting-value">
+        <text>{{settings.pushTime}}</text>
+        <text class="arrow">→</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 免打扰设置 -->
+  <view class="section card">
+    <view class="section-title">🌙 免打扰模式</view>
+    
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-name">开启免打扰</text>
+        <text class="setting-desc">在指定时间段内不发送通知</text>
+      </view>
+      <van-switch 
+        checked="{{settings.quietMode}}" 
+        bind:change="onQuietModeChange"
+        active-color="#4A90E2"
+      />
+    </view>
+    
+    <view class="quiet-time-settings" wx:if="{{settings.quietMode}}">
+      <view class="setting-item" bindtap="onShowTimePicker" data-target="quietStart">
+        <text class="setting-name">开始时间</text>
+        <view class="setting-value">
+          <text>{{settings.quietStart}}</text>
+          <text class="arrow">→</text>
+        </view>
+      </view>
+      
+      <view class="setting-item" bindtap="onShowTimePicker" data-target="quietEnd">
+        <text class="setting-name">结束时间</text>
+        <view class="setting-value">
+          <text>{{settings.quietEnd}}</text>
+          <text class="arrow">→</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订阅消息类型 -->
+  <view class="section card">
+    <view class="section-title">📨 订阅消息</view>
+    <text class="section-desc">选择您希望接收的消息类型</text>
+    
+    <view class="setting-list">
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">学习日报</text>
+          <text class="setting-desc">每日学习情况汇总</text>
+        </view>
+        <van-switch 
+          checked="{{settings.messageTypes.studyReport}}" 
+          bind:change="onMessageTypeChange"
+          data-type="studyReport"
+          active-color="#4A90E2"
+        />
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">薄弱点预警</text>
+          <text class="setting-desc">掌握度下降时提醒</text>
+        </view>
+        <van-switch 
+          checked="{{settings.messageTypes.weakPointAlert}}" 
+          bind:change="onMessageTypeChange"
+          data-type="weakPointAlert"
+          active-color="#4A90E2"
+        />
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">押题卷更新</text>
+          <text class="setting-desc">新押题卷上线通知</text>
+        </view>
+        <van-switch 
+          checked="{{settings.messageTypes.newPredictPaper}}" 
+          bind:change="onMessageTypeChange"
+          data-type="newPredictPaper"
+          active-color="#4A90E2"
+        />
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-name">考试倒计时</text>
+          <text class="setting-desc">考前重要时间节点</text>
+        </view>
+        <van-switch 
+          checked="{{settings.messageTypes.examCountdown}}" 
+          bind:change="onMessageTypeChange"
+          data-type="examCountdown"
+          active-color="#4A90E2"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 重置按钮 -->
+  <view class="reset-section">
+    <button class="btn-reset" bindtap="onResetSettings">重置所有设置</button>
+  </view>
+
+  <!-- 时间选择器 -->
+  <van-popup show="{{showTimePicker}}" position="bottom" bind:close="onHideTimePicker">
+    <van-picker
+      columns="{{timeColumns}}"
+      bind:change="onTimeChange"
+      bind:cancel="onHideTimePicker"
+      bind:confirm="onTimeConfirm"
+    />
+  </van-popup>
+</view>
