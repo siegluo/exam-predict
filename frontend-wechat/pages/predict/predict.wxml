@@ -1,0 +1,176 @@
+<!-- pages/predict/predict.wxml - 押题卷页 -->
+<view class="page">
+  <!-- 统计卡片 -->
+  <view class="stats-card card">
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{stats.totalGenerated}}</text>
+        <text class="stat-label">已生成</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value text-success">{{stats.avgAccuracy}}%</text>
+        <text class="stat-label">预测准确率</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{isLoading}}" class="loading-container">
+    <van-loading type="spinner" size="48rpx">加载中...</van-loading>
+  </view>
+
+  <!-- 推荐押题卷 -->
+  <view class="section" wx:if="{{!isLoading && recommendedPaper}}">
+    <view class="section-title">
+      <text>🎯 推荐押题卷</text>
+    </view>
+    
+    <view class="recommended-card card">
+      <view class="recommended-header">
+        <view class="confidence-badge {{recommendedPaper.confidence >= 90 ? 'high' : 'medium'}}">
+          <text>{{recommendedPaper.confidence}}%</text>
+          <text class="confidence-label">置信度</text>
+        </view>
+        <view class="paper-tags">
+          <van-tag wx:for="{{recommendedPaper.tags}}" wx:key="*this" type="primary" size="small">
+            {{item}}
+          </van-tag>
+        </view>
+      </view>
+      
+      <text class="paper-name">{{recommendedPaper.name}}</text>
+      <text class="paper-desc">{{recommendedPaper.description}}</text>
+      
+      <view class="paper-info">
+        <view class="info-item">
+          <text class="info-label">题量</text>
+          <text class="info-value">{{recommendedPaper.questionCount}}题</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">预计时长</text>
+          <text class="info-value">{{recommendedPaper.estimatedTime}}分钟</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">生成日期</text>
+          <text class="info-value">{{recommendedPaper.generatedAt}}</text>
+        </view>
+      </view>
+      
+      <button class="btn-primary start-btn" bindtap="onStartExam" data-id="{{recommendedPaper.id}}">
+        开始答题
+      </button>
+    </view>
+  </view>
+
+  <!-- 全部押题卷 -->
+  <view class="section" wx:if="{{!isLoading}}">
+    <view class="section-header">
+      <view class="section-title">
+        <text>📚 全部押题卷</text>
+      </view>
+      <text class="view-all" bindtap="onViewHistory">历史记录 →</text>
+    </view>
+    
+    <view class="papers-list">
+      <block wx:for="{{predictPapers}}" wx:key="id">
+        <view class="paper-card card" bindtap="onViewDetail" data-id="{{item.id}}">
+          <view class="paper-left">
+            <view class="paper-status {{item.status}}">
+              {{item.status === 'ready' ? '可答题' : '已使用'}}
+            </view>
+            <text class="paper-title">{{item.name}}</text>
+          </view>
+          <view class="paper-right">
+            <view class="confidence-mini {{item.confidence >= 90 ? 'high' : 'medium'}}">
+              {{item.confidence}}%
+            </view>
+            <text class="paper-arrow">→</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 生成押题卷 -->
+  <view class="section">
+    <view class="section-title">
+      <text>⚙️ 生成押题卷</text>
+    </view>
+    
+    <view class="generate-card card">
+      <view class="option-item">
+        <text class="option-label">题目数量</text>
+        <picker mode="selector" range="{{[30, 50, 80, 100]}}" bindchange="onQuestionCountChange">
+          <view class="option-value">
+            {{generateOptions.questionCount}} 题
+          </view>
+        </picker>
+      </view>
+      
+      <view class="option-item">
+        <text class="option-label">难度分布</text>
+        <view class="difficulty-btns">
+          <view 
+            class="difficulty-btn {{generateOptions.difficulty === 'all' ? 'active' : ''}}"
+            bindtap="onDifficultyChange"
+            data-difficulty="all"
+          >全部</view>
+          <view 
+            class="difficulty-btn {{generateOptions.difficulty === 'easy' ? 'active' : ''}}"
+            bindtap="onDifficultyChange"
+            data-difficulty="easy"
+          >简单</view>
+          <view 
+            class="difficulty-btn {{generateOptions.difficulty === 'medium' ? 'active' : ''}}"
+            bindtap="onDifficultyChange"
+            data-difficulty="medium"
+          >中等</view>
+          <view 
+            class="difficulty-btn {{generateOptions.difficulty === 'hard' ? 'active' : ''}}"
+            bindtap="onDifficultyChange"
+            data-difficulty="hard"
+          >困难</view>
+        </view>
+      </view>
+      
+      <button 
+        class="btn-primary generate-btn" 
+        bindtap="onGeneratePaper" 
+        loading="{{isGenerating}}"
+        disabled="{{isGenerating}}"
+      >
+        {{isGenerating ? '生成中...' : '生成押题卷'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 历史记录弹窗 -->
+  <van-popup show="{{showHistory}}" position="bottom" bind:close="onHideHistory">
+    <view class="history-sheet">
+      <view class="history-header">
+        <text>历史记录</text>
+        <text class="close-btn" bindtap="onHideHistory">×</text>
+      </view>
+      
+      <view class="history-list">
+        <block wx:for="{{historyList}}" wx:key="id">
+          <view class="history-item">
+            <view class="history-info">
+              <text class="history-name">{{item.name}}</text>
+              <text class="history-date">{{item.completedAt}}</text>
+            </view>
+            <view class="history-score">
+              <text class="score-value {{item.correctRate >= 60 ? 'success' : 'danger'}}">{{item.correctRate}}%</text>
+              <text class="score-label">正确率</text>
+            </view>
+          </view>
+        </block>
+        
+        <view wx:if="{{historyList.length === 0}}" class="empty-history">
+          <text>暂无历史记录</text>
+        </view>
+      </view>
+    </view>
+  </van-popup>
+</view>
